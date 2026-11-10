@@ -14,7 +14,7 @@ const icons: Record<string, typeof TestTube2> = { Observation: TestTube2, Medica
 export default function Dashboard() {
   const router = useRouter(); const [data, setData] = useState<DashboardData | null>(null); const [error, setError] = useState(''); const [busy, setBusy] = useState(true);
   const load = useCallback(async (user: User) => {
-    try { const token = await user.getIdToken(); const response = await fetch('/api/dashboard', { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }); if (response.status === 401) { await signOut(getFirebaseAuth()); router.replace('/login'); return; } const result = await response.json(); if (!response.ok) throw new Error(result.error); setData(result); }
+    try { const token = await user.getIdToken(); const response = await fetch('/api/dashboard', { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }); if (response.status === 401) { await signOut(getFirebaseAuth()); router.replace('/login'); return; } const body = await response.text(); let result: DashboardData & { error?: string }; try { result = JSON.parse(body); } catch { throw new Error(`Dashboard API returned an empty or non-JSON response (${response.status}). Check the Vercel function logs.`); } if (!response.ok) throw new Error(result.error || `Dashboard request failed (${response.status}).`); setData(result); }
     catch(e) { setError(e instanceof Error ? e.message : 'Unable to load your dashboard.'); } finally { setBusy(false); }
   }, [router]);
   useEffect(() => {

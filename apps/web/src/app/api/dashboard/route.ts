@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeHealth } from '@/lib/gemini';
-import { mockABDMFetch } from '@/lib/mockAbdm';
-import { requireUser } from '@/lib/serverAuth';
-import { getFirebaseAdminDb } from '@/lib/firebaseAdmin';
-
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
+    // Load server-only modules inside the handler so deployment/runtime import
+    // failures are returned as JSON and show up in the function logs.
+    const [{ analyzeHealth }, { mockABDMFetch }, { requireUser }, { getFirebaseAdminDb }] = await Promise.all([
+      import('@/lib/gemini'),
+      import('@/lib/mockAbdm'),
+      import('@/lib/serverAuth'),
+      import('@/lib/firebaseAdmin'),
+    ]);
     const { user, response } = await requireUser(request);
     if (response || !user) return response;
     const db = getFirebaseAdminDb();
@@ -35,6 +39,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ simulated: true, summary: analysis.patient_summary, clinical_tags: analysis.clinical_tags, marketplace_actions: analysis.marketplace_actions, isDemo: analysis.isDemo, records: records.map(({ resource_type, title, record_date, summary }) => ({ resourceType: resource_type, title, date: record_date, summary })) });
   } catch (error) {
     console.error('Dashboard API error:', error instanceof Error ? error.message : 'unknown error');
-    return NextResponse.json({ error: 'Could not load your dashboard. Check Supabase setup and try again.' }, { status: 500 });
+    return NextResponse.json({ error: 'Could not load your dashboard. Check Firebase configuration and try again.' }, { status: 500 });
   }
 }
