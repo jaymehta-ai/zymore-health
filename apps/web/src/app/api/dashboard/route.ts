@@ -10,12 +10,11 @@ export async function GET(request: NextRequest) {
     const { mockABDMFetch } = await import('@/lib/mockAbdm');
     stage = 'load authentication module';
     const { requireUser } = await import('@/lib/serverAuth');
-    stage = 'load Firebase Admin module';
-    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     stage = 'authenticate request';
     const { user, response } = await requireUser(request);
     if (response || !user) return response;
     stage = 'analyze and store dashboard data';
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const db = getFirebaseAdminDb();
     const bundle = mockABDMFetch(user.id);
     const analysis = await analyzeHealth(bundle);
