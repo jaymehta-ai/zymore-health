@@ -3,17 +3,19 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
+  let stage = 'load Gemini service';
   try {
-    // Load server-only modules inside the handler so deployment/runtime import
-    // failures are returned as JSON and show up in the function logs.
-    const [{ analyzeHealth }, { mockABDMFetch }, { requireUser }, { getFirebaseAdminDb }] = await Promise.all([
-      import('@/lib/gemini'),
-      import('@/lib/mockAbdm'),
-      import('@/lib/serverAuth'),
-      import('@/lib/firebaseAdmin'),
-    ]);
+    const { analyzeHealth } = await import('@/lib/gemini');
+    stage = 'load ABDM simulator';
+    const { mockABDMFetch } = await import('@/lib/mockAbdm');
+    stage = 'load authentication module';
+    const { requireUser } = await import('@/lib/serverAuth');
+    stage = 'load Firebase Admin module';
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
+    stage = 'authenticate request';
     const { user, response } = await requireUser(request);
     if (response || !user) return response;
+    stage = 'analyze and store dashboard data';
     const db = getFirebaseAdminDb();
     const bundle = mockABDMFetch(user.id);
     const analysis = await analyzeHealth(bundle);
@@ -38,7 +40,7 @@ export async function GET(request: NextRequest) {
     await batch.commit();
     return NextResponse.json({ simulated: true, summary: analysis.patient_summary, clinical_tags: analysis.clinical_tags, marketplace_actions: analysis.marketplace_actions, isDemo: analysis.isDemo, records: records.map(({ resource_type, title, record_date, summary }) => ({ resourceType: resource_type, title, date: record_date, summary })) });
   } catch (error) {
-    console.error('Dashboard API error:', error instanceof Error ? error.message : 'unknown error');
-    return NextResponse.json({ error: 'Could not load your dashboard. Check Firebase configuration and try again.' }, { status: 500 });
+    console.error(`Dashboard API error at stage "${stage}":`, error instanceof Error ? error.message : 'unknown error');
+    return NextResponse.json({ error: 'Could not load your dashboard. Check the Vercel function logs.', debugStage: stage }, { status: 500 });
   }
 }
