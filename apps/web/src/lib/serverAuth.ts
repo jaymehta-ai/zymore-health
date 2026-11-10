@@ -9,8 +9,15 @@ export async function requireUser(request: NextRequest) {
     const { getFirebaseAdminAuth } = await import('./firebaseAdmin');
     auth = getFirebaseAdminAuth();
   } catch (error) {
-    console.error('Firebase Admin initialization failed:', error instanceof Error ? error.message : 'unknown error');
-    return { user: null, response: NextResponse.json({ error: 'Firebase server authentication is unavailable.' }, { status: 500 }) };
+    const message = error instanceof Error ? error.message : 'unknown error';
+    console.error('Firebase Admin initialization failed:', message);
+    return {
+      user: null,
+      response: NextResponse.json(
+        { error: 'Firebase server authentication is unavailable.', debugCode: message },
+        { status: 500 },
+      ),
+    };
   }
 
   try {
