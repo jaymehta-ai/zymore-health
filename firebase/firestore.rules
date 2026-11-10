@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Health records are only read and written by authenticated Next.js server
+    // routes using the Admin SDK. The Admin SDK bypasses these client rules.
+    match /health_records/{document} {
+      allow read, write: if false;
+    }
+    match /ai_insights/{document} {
+      allow read, write: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "zymore-health",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["apps/web"],
+  "scripts": {
+    "dev": "npm run dev -w @zymore/web",
+    "build": "npm run build -w @zymore/web",
+    "start": "npm run start -w @zymore/web",
+    "check": "npm run check -w @zymore/web"
+  },
+  "engines": { "node": "24.x" },
+  "overrides": { "@grpc/grpc-js": "1.14.7" }
+}
