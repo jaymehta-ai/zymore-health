@@ -10,7 +10,9 @@ export async function GET(request: NextRequest) {
   if (response || !user) return response;
   try {
     const snapshot = await getFirebaseAdminDb().collection('access_audit').where('patient_uid', '==', user.id).limit(100).get();
-    const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    const events = snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }) as Record<string, unknown>)
+      .sort((a, b) => String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? '')));
     return NextResponse.json({ events });
   } catch (error) {
     console.error('Patient access log read failed:', error instanceof Error ? error.message : 'unknown error');
