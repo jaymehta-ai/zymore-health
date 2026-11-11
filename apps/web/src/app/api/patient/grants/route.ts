@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/serverAuth';
-import { getFirebaseAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -11,6 +10,7 @@ export async function GET(request: NextRequest) {
   const { user, response } = await requireUser(request);
   if (response || !user) return response;
   try {
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const result = await getFirebaseAdminDb().collection('access_grants').where('patient_uid', '==', user.id).get();
     return NextResponse.json({ grants: result.docs.map(doc => ({ id: doc.id, ...doc.data() })) });
   } catch { return NextResponse.json({ error: 'Could not load sharing permissions.' }, { status: 500 }); }
@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Choose a doctor, information to share, and an access duration of 1 to 168 hours.' }, { status: 400 });
     }
 
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const db = getFirebaseAdminDb();
     const doctorQuery = await db.collection('doctor_profiles').where('doctorId', '==', doctorId).limit(1).get();
     if (doctorQuery.empty) return NextResponse.json({ error: 'That Zymore doctor ID was not found.' }, { status: 404 });
@@ -67,6 +68,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const { grantId } = await request.json();
     if (typeof grantId !== 'string' || !/^[A-Za-z0-9]{20}$/.test(grantId)) return NextResponse.json({ error: 'Invalid sharing permission.' }, { status: 400 });
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const db = getFirebaseAdminDb();
     const ref = db.collection('access_grants').doc(grantId);
     const snapshot = await ref.get();

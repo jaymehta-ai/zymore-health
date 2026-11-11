@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/serverAuth';
-import { getFirebaseAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,6 +19,7 @@ export async function GET(request: NextRequest) {
   if (!/^[A-Za-z0-9]{20}$/.test(grantId)) return NextResponse.json({ error: 'Invalid patient permission.' }, { status: 400 });
 
   try {
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const db = getFirebaseAdminDb();
     const doctor = await db.collection('doctor_profiles').doc(user.id).get();
     if (!doctor.exists || doctor.data()?.verificationStatus !== 'verified') return NextResponse.json({ error: 'A verified doctor profile is required.' }, { status: 403 });

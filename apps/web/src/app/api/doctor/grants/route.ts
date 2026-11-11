@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/serverAuth';
-import { getFirebaseAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,6 +8,7 @@ export async function GET(request: NextRequest) {
   const { user, response } = await requireUser(request);
   if (response || !user) return response;
   try {
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const db = getFirebaseAdminDb();
     const doctor = await db.collection('doctor_profiles').doc(user.id).get();
     if (!doctor.exists) return NextResponse.json({ error: 'Doctor profile not found.', needsDoctorProfile: true }, { status: 404 });

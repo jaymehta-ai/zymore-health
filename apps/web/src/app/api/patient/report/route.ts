@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/serverAuth';
-import { getFirebaseAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,6 +8,7 @@ export async function POST(request: NextRequest) {
   const { user, response } = await requireUser(request);
   if (response || !user) return response;
   try {
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const body = await request.json();
     const auditId = typeof body.auditId === 'string' ? body.auditId : '';
     const details = typeof body.details === 'string' ? body.details.trim().slice(0, 3000) : '';

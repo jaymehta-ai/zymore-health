@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/serverAuth';
-import { getFirebaseAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,6 +8,7 @@ export async function GET(request: NextRequest) {
   const { user, response } = await requireUser(request);
   if (response || !user) return response;
   try {
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const snapshot = await getFirebaseAdminDb().collection('access_audit').where('patient_uid', '==', user.id).limit(100).get();
     const events = snapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }) as Record<string, unknown>)

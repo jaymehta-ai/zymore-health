@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/serverAuth';
-import { getFirebaseAdminDb } from '@/lib/firebaseAdmin';
 import { analyzeHealth, type HealthAnalysis } from '@/lib/gemini';
 
 export const dynamic = 'force-dynamic';
@@ -19,6 +18,7 @@ export async function GET(request: NextRequest) {
   if (response || !user) return response;
 
   try {
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const db = getFirebaseAdminDb();
     const profileSnapshot = await db.collection('user_profiles').doc(user.id).get();
     const profile = profileSnapshot.data();

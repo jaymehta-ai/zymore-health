@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/serverAuth';
-import { getFirebaseAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,6 +29,7 @@ export async function GET(request: NextRequest) {
   const { user, response } = await requireUser(request);
   if (response || !user) return response;
   try {
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const snapshot = await getFirebaseAdminDb().collection('user_profiles').doc(user.id).get();
     return NextResponse.json({ profile: snapshot.exists ? snapshot.data() : null });
   } catch (error) {
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date().toISOString();
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const db = getFirebaseAdminDb();
     const doctorAccount = await db.collection('doctor_profiles').doc(user.id).get();
     if (doctorAccount.exists) return NextResponse.json({ error: 'This account is set up as a doctor. Use a separate account for a patient profile.' }, { status: 409 });

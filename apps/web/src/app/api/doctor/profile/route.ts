@@ -1,7 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/lib/serverAuth';
-import { getFirebaseAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,14 +8,21 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   const { user, response } = await requireUser(request);
   if (response || !user) return response;
-  const snapshot = await getFirebaseAdminDb().collection('doctor_profiles').doc(user.id).get();
-  return NextResponse.json({ doctor: snapshot.exists ? snapshot.data() : null });
+  try {
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
+    const snapshot = await getFirebaseAdminDb().collection('doctor_profiles').doc(user.id).get();
+    return NextResponse.json({ doctor: snapshot.exists ? snapshot.data() : null });
+  } catch (error) {
+    console.error('Doctor profile read failed:', error instanceof Error ? error.message : 'unknown error');
+    return NextResponse.json({ error: 'Could not load your doctor profile.' }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
   const { user, response } = await requireUser(request);
   if (response || !user) return response;
   try {
+    const { getFirebaseAdminDb } = await import('@/lib/firebaseAdmin');
     const db = getFirebaseAdminDb();
     const patient = await db.collection('user_profiles').doc(user.id).get();
     if (patient.exists) return NextResponse.json({ error: 'This account is already set up as a patient. Use a separate account for a doctor profile.' }, { status: 409 });
