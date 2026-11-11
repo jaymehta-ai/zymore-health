@@ -14,7 +14,7 @@ export async function requireUser(request: NextRequest) {
     return {
       user: null,
       response: NextResponse.json(
-        { error: 'Firebase server authentication is unavailable.', debugCode: message },
+        { error: 'Firebase server authentication is unavailable.' },
         { status: 500 },
       ),
     };
