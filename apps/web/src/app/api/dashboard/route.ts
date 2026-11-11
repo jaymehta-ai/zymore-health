@@ -4,6 +4,7 @@ import { analyzeHealth, type HealthAnalysis } from '@/lib/gemini';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 function calculateAge(dateOfBirth: string) {
   const birth = new Date(`${dateOfBirth}T00:00:00.000Z`);

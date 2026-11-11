@@ -26,7 +26,7 @@ export async function analyzeHealth(context: unknown, allowMarketplace: boolean)
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
-  const ai = new GoogleGenAI({ apiKey, httpOptions: { retryOptions: { attempts: 1 }, timeout: 15_000 } });
+  const ai = new GoogleGenAI({ apiKey, httpOptions: { retryOptions: { attempts: 1 }, timeout: 10_000 } });
   const configuredModel = process.env.GEMINI_MODEL?.trim() || modelFallbackOrder[0];
   const configuredIndex = modelFallbackOrder.indexOf(configuredModel);
   const models = configuredIndex >= 0
@@ -63,6 +63,7 @@ export async function analyzeHealth(context: unknown, allowMarketplace: boolean)
       if (typeof parsed.patient_summary !== 'string' || !Array.isArray(parsed.clinical_tags) || !Array.isArray(parsed.marketplace_actions)) {
         throw new Error('Gemini returned an invalid health summary.');
       }
+      if (model !== configuredModel) console.info(`Gemini summary used fallback model ${model}.`);
       const summaryMentionsUnsupportedLipids = /lipid|cholesterol/i.test(parsed.patient_summary) && !/lipid|cholesterol/i.test(sourceText);
       return {
         patient_summary: summaryMentionsUnsupportedLipids ? 'The AI summary included a health detail that is not in your information, so it has been withheld. Please review your saved profile or try again later.' : parsed.patient_summary.slice(0, 600),
@@ -75,7 +76,7 @@ export async function analyzeHealth(context: unknown, allowMarketplace: boolean)
       };
     } catch (error) {
       lastError = error;
-      console.warn(`Gemini model ${model} failed; attempting the next fallback.`);
+      console.warn(`Gemini model ${model} failed; attempting the next fallback.`, error instanceof Error ? error.message : 'unknown error');
       if (isInvalidApiKey(error)) break;
     }
   }
