@@ -4,7 +4,7 @@ import { requireUser } from '@/lib/serverAuth';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const allowedScopes = new Set(['profile', 'history', 'records']);
+const allowedScopes = new Set(['profile', 'history', 'records', 'add_records']);
 
 export async function GET(request: NextRequest) {
   const { user, response } = await requireUser(request);

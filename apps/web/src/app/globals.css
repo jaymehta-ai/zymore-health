@@ -74,3 +74,50 @@ h1,h2,h3 { font-family:Manrope,sans-serif; letter-spacing:-.55px; }
 @media(max-width:760px){.main{padding:26px 16px 50px}.grid{grid-template-columns:1fr}.records{grid-template-columns:1fr}.market-grid{grid-template-columns:1fr}.welcome{align-items:flex-start;gap:12px;flex-direction:column}.date-pill{display:none}.topbar{padding:0 16px}.top-right{gap:8px}.secure{font-size:0}.secure svg{width:15px}.section{margin-top:23px}}
 @media(max-width:620px){.onboarding-wrap{padding:0 12px 30px}.onboarding-brand{height:62px}.onboarding-brand .secure{font-size:0;padding:7px}.onboarding-card{padding:23px 17px}.form-grid{grid-template-columns:1fr}.form-wide{grid-column:auto}.radio-row{flex-direction:column}.profile-strip{align-items:flex-start;gap:13px}.abha-fact{margin-left:0;flex-basis:100%;}.profile-fact{min-width:56px}.top-link{font-size:10px}}
 @media(max-width:760px){.doctor-columns{grid-template-columns:1fr}.doctor-status{align-items:flex-start;gap:12px;flex-direction:column}.access-row{align-items:flex-start;flex-wrap:wrap}.revoke-button{margin-left:50px}.audit-row{align-items:flex-start;flex-wrap:wrap}.audit-row time{margin-left:17px;}}
+.profile-icon-link { width:34px;height:34px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;background:#fff;color:#18887e;text-decoration:none; }
+.profile-icon-link:hover { background:#f0f8f7;border-color:#cde5e1; }
+.vault-heading { align-items:center;gap:14px; }
+.vault-heading>div { display:flex;flex-direction:column;gap:4px; }
+.secondary-button { border:1px solid #cfe4e1;border-radius:9px;background:#fff;color:#087d75;padding:10px 13px;font-size:11px;font-weight:700;cursor:pointer; }
+.secondary-button:hover { background:#f2f9f8; }
+.secondary-button:disabled,.primary:disabled { opacity:.6;cursor:wait; }
+.upload-card { padding:19px 21px;margin-bottom:14px; }
+.upload-intro { display:flex;align-items:center;gap:11px;margin-bottom:16px; }
+.upload-intro strong { display:block;font-size:13px;color:#39546b;margin-bottom:4px; }
+.upload-intro p { margin:0;color:#718297;font-size:11px; }
+.record-upload-form { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 15px; }
+.record-upload-form .form-field { margin:0; }
+.record-upload-form .file-input { height:auto;min-height:43px;padding:9px;background:#fbfcfd; }
+.record-upload-form .textarea { min-height:75px; }
+.record-upload-form .privacy-inline { margin:0; }
+.upload-submit { margin:0;max-width:220px; }
+.record-list { margin-top:13px; }
+.record-content { flex:1;min-width:0; }
+.record-heading { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.record-heading h3 { margin:2px 0 6px; }
+.record-content time,.file-name { display:block;color:#96a3b1;font-size:10px;margin-top:5px; }
+.file-name { color:#5d768a;overflow-wrap:anywhere; }
+.record-actions { display:flex;gap:14px;flex-wrap:wrap;margin-top:8px; }
+.text-button { display:inline-flex;align-items:center;gap:5px;border:0;padding:4px 0;background:transparent;color:#087d75;font-size:10px;font-weight:700;cursor:pointer; }
+.text-button:hover { text-decoration:underline; }
+.danger-text { color:#9a4c4c; }
+.demo-warning { margin:0 0 12px;color:#86692e;font-size:11px;line-height:1.5; }
+.vault-footer-actions { margin-top:14px;display:flex;justify-content:flex-end; }
+.doctor-record { padding:9px 0;border-top:1px solid var(--line); }
+.doctor-record p { font-size:11px;line-height:1.55;color:#62768a; }
+.doctor-record .demo-label { margin-left:8px; }
+.clinic-record-form { display:grid;gap:12px;max-width:480px; }
+.clinic-record-form .form-field { margin:0; }
+.clinic-record-form .primary { margin-top:3px; }
+.review-actions { display:flex;gap:10px;margin-top:14px; }
+.review-actions button { display:flex;align-items:center;gap:5px; }
+.ocr-review { margin-top:13px;padding:14px;border:1px solid #dcebe9;border-radius:10px;background:#f8fbfb; }
+.ocr-review h4 { margin:0 0 6px;color:#39546b;font-size:12px; }
+.ocr-review>p { margin:0 0 10px;color:#718297;font-size:11px;line-height:1.55; }
+.ocr-review ul { margin:10px 0 14px;padding-left:18px;color:#526b7e;font-size:11px;line-height:1.6; }
+.ocr-review li { padding:2px 0; }
+.confidence-label { display:inline-block;margin-left:7px;color:#8a98a6;font-size:9px;text-transform:capitalize; }
+.ocr-review form { display:grid;gap:10px;max-width:520px; }
+.ocr-review form .form-field { margin:0; }
+.ocr-review form .secondary-button { justify-self:start; }
+@media(max-width:620px){.record-upload-form{grid-template-columns:1fr}.record-upload-form .form-wide{grid-column:auto}.vault-heading{align-items:flex-start;flex-direction:column}.upload-submit{max-width:none}.top-right .profile-icon-link{width:31px;height:31px}}

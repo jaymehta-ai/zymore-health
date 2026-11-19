@@ -3,7 +3,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
 function getEnvironmentValue(name: string) {
-  const value = process.env[name]?.trim();
+  const value = (process.env[name] || process.env[`\uFEFF${name}`])?.trim();
   if (!value) return undefined;
   if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
     return value.slice(1, -1);

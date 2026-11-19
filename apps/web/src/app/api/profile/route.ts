@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
     const hasAbha = ['yes', 'no', 'unsure'].includes(body.hasAbha) ? body.hasAbha : null;
     const consentAccepted = body.consentAccepted === true;
     const aiConsent = body.aiConsent === true;
+    const documentOcrConsent = body.documentOcrConsent === true;
     const marketplaceConsent = body.marketplaceConsent === true;
 
     if (!displayName || !validDateOfBirth(dateOfBirth) || Number.isNaN(heightCm) || heightCm === null || Number.isNaN(weightKg) || weightKg === null || !bloodGroups.has(bloodGroup) || !hasAbha || !consentAccepted) {
@@ -79,18 +80,15 @@ export async function POST(request: NextRequest) {
       healthDataConsentAt: previous.data()?.healthDataConsentAt || now,
       aiConsent,
       aiConsentAt: aiConsent ? now : null,
+      documentOcrConsent,
+      documentOcrConsentAt: documentOcrConsent ? now : null,
       marketplaceConsent,
       marketplaceConsentAt: marketplaceConsent ? now : null,
       updatedAt: now,
       createdAt: previous.data()?.createdAt || now,
     };
-    const cleanup = db.batch();
-    cleanup.set(ref, profile, { merge: true });
-    cleanup.delete(db.collection('ai_insights').doc(user.id));
-    for (const demoRecordId of ['lipid-panel-demo', 'statin-demo', 'follow-up-demo']) {
-      cleanup.delete(db.collection('health_records').doc(`${user.id}_${demoRecordId}`));
-    }
-    await cleanup.commit();
+    await ref.set(profile, { merge: true });
+    if (!aiConsent) await db.collection('ai_insights').doc(user.id).delete();
     return NextResponse.json({ profile: { ...profile } });
   } catch (error) {
     console.error('Profile save failed:', error instanceof Error ? error.message : 'unknown error');

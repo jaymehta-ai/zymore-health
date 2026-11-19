@@ -39,13 +39,14 @@ export async function GET(request: NextRequest) {
     if (scopes.has('history')) patient.history = { medicalHistory: profile.medicalHistory || '', dentalHistory: profile.dentalHistory || '', currentTreatments: profile.currentTreatments || '' };
     if (scopes.has('records')) {
       const records = await db.collection('health_records').where('user_id', '==', grant.patient_uid).get();
-      patient.records = records.docs.map(doc => doc.data()).filter(record => record.source === 'user' && record.is_demo !== true).map(record => ({ resource_type: record.resource_type, title: record.title, record_date: record.record_date, summary: record.summary, fhir: record.fhir || null }));
+      const storedRecords: Array<Record<string, unknown> & { id: string }> = records.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      patient.records = storedRecords.filter(record => ['user', 'clinic', 'mock_abdm'].includes(String(record.source))).map(record => ({ id: record.id, resource_type: record.resource_type, title: record.title, record_date: record.record_date, summary: record.summary, file_name: record.file_name || null, simulated: record.simulated === true, source: record.source, fhir: record.fhir || null }));
     }
 
     await db.collection('access_audit').add({ event: 'patient_data_viewed', patient_uid: grant.patient_uid, doctor_uid: user.id, doctorId: doctor.data()?.doctorId, grant_id: grantId, scopes: [...scopes], actor_uid: user.id, createdAt: new Date().toISOString() });
     const finalGrant = await grantRef.get();
     if (finalGrant.data()?.status !== 'active' || Date.parse(finalGrant.data()?.expiresAt || '') <= Date.now()) return NextResponse.json({ error: 'Access was revoked or expired.' }, { status: 403 });
-    return NextResponse.json({ patient });
+    return NextResponse.json({ patient, grant: { id: grantId, scopes: [...scopes], expiresAt: grant.expiresAt } });
   } catch (error) {
     console.error('Authorized patient data read failed:', error instanceof Error ? error.message : 'unknown error');
     return NextResponse.json({ error: 'Could not retrieve shared patient information.' }, { status: 500 });
