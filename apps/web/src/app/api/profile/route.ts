@@ -72,6 +72,8 @@ export async function POST(request: NextRequest) {
       heightCm,
       weightKg,
       bloodGroup,
+      allergies: cleanText(body.allergies, 1500),
+      emergencyContact: cleanText(body.emergencyContact, 200),
       medicalHistory: cleanText(body.medicalHistory, 4000),
       dentalHistory: cleanText(body.dentalHistory, 2000),
       currentTreatments: cleanText(body.currentTreatments, 3000),

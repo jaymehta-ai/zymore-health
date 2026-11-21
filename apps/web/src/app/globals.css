@@ -121,3 +121,46 @@ h1,h2,h3 { font-family:Manrope,sans-serif; letter-spacing:-.55px; }
 .ocr-review form .form-field { margin:0; }
 .ocr-review form .secondary-button { justify-self:start; }
 @media(max-width:620px){.record-upload-form{grid-template-columns:1fr}.record-upload-form .form-wide{grid-column:auto}.vault-heading{align-items:flex-start;flex-direction:column}.upload-submit{max-width:none}.top-right .profile-icon-link{width:31px;height:31px}}
+
+/* Emergency Alerts & ICE Styling */
+.emergency-alert-banner { display:flex;gap:12px;align-items:flex-start;background:#fff5f5;border:1.5px solid #f8d7da;border-radius:12px;padding:14px 16px;margin:12px 0 16px;color:#842029; }
+.emergency-alert-banner .alert-icon { flex:0 0 20px;color:#dc3545;margin-top:2px; }
+.emergency-alert-banner strong { display:block;font-size:12px;letter-spacing:.4px;font-weight:800;color:#842029;margin-bottom:3px; }
+.emergency-alert-banner p { margin:0;font-size:13px;line-height:1.45;color:#58151c; }
+
+.emergency-contact-chip { display:inline-flex;align-items:center;gap:6px;background:#f0f7f6;border:1px solid #d4ebe6;border-radius:20px;padding:6px 14px;font-size:11px;color:#18534e;margin-bottom:14px; }
+.emergency-contact-chip .chip-label { color:#467a74; }
+
+.allergy-fact-alert { border-color:#f5c2c7;background:#fff8f8; }
+.allergy-fact-alert strong { color:#b02a37 !important; }
+
+.ice-button { display:inline-flex;align-items:center;gap:6px;background:#fff1f0;border:1.5px solid #fcc;border-radius:8px;color:#cf1322;font-weight:700;font-size:11px;padding:8px 12px;cursor:pointer;transition:all .15s ease;margin-left:auto; }
+.ice-button:hover { background:#ffe8e6;border-color:#ffa39e; }
+
+.ice-modal-backdrop { position:fixed;inset:0;background:rgba(18,37,53,.65);backdrop-filter:blur(3px);z-index:9999;display:grid;place-items:center;padding:16px; }
+.ice-modal-content { background:#fff;width:100%;max-width:540px;border-radius:16px;box-shadow:0 12px 36px rgba(0,0,0,.2);overflow:hidden;animation:fadeIn .2s ease-out; }
+@keyframes fadeIn { from{opacity:0;transform:scale(.97)} to{opacity:1;transform:scale(1)} }
+.ice-modal-header { display:flex;justify-content:space-between;align-items:center;padding:18px 22px;background:#fff1f0;border-bottom:1px solid #ffccc7; }
+.ice-title { display:flex;align-items:center;gap:12px; }
+.ice-badge { width:36px;height:36px;border-radius:10px;background:#ff4d4f;color:#fff;display:grid;place-items:center; }
+.ice-title h3 { margin:0;font-size:16px;color:#a8071a;font-weight:800; }
+.ice-title span { font-size:11px;color:#cf1322;display:block; }
+.ice-close-button { background:transparent;border:0;color:#cf1322;cursor:pointer;padding:4px;border-radius:6px;display:grid;place-items:center; }
+.ice-close-button:hover { background:rgba(207,19,34,.1); }
+
+.ice-body { padding:22px;display:flex;flex-direction:column;gap:16px;max-height:75vh;overflow-y:auto; }
+.ice-patient-header { display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line); }
+.ice-patient-header strong { font-size:18px;color:#18334a; }
+.ice-patient-header span { font-size:12px;color:var(--muted);display:block;margin-top:2px; }
+.blood-em { font-style:normal;font-weight:800;color:#cf1322; }
+
+.ice-alert-section h4,.ice-contact-section h4,.ice-meds-section h4 { font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:#5a6e80;margin:0 0 8px;font-weight:700; }
+.ice-allergy-box { background:#fff2f0;border:1px solid #ffccc7;border-radius:10px;padding:12px 14px;color:#a8071a;font-size:13px; }
+.ice-allergy-box strong { font-weight:700; }
+.ice-contact-box { display:flex;align-items:center;gap:9px;background:#f6f9fb;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;color:#18334a;font-weight:600; }
+.ice-meds-list { margin:0;padding-left:18px;color:#39546b;font-size:12px;line-height:1.6; }
+.ice-meds-list li { margin-bottom:4px; }
+.ice-quiet { margin:0;font-size:12px;color:var(--muted);font-style:italic; }
+.ice-footer { padding:12px 22px;background:#fbfcfd;border-top:1px solid var(--line);text-align:center; }
+.ice-footer small { color:#8c9ba8;font-size:10px; }
+

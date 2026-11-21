@@ -9,12 +9,14 @@ import { getFirebaseAuth } from '@/lib/firebase';
 
 type ProfileValues = {
   displayName: string; dateOfBirth: string; heightCm: string; weightKg: string; bloodGroup: string;
+  allergies: string; emergencyContact: string;
   medicalHistory: string; dentalHistory: string; currentTreatments: string; hasAbha: string;
   consentAccepted: boolean; aiConsent: boolean; documentOcrConsent: boolean; marketplaceConsent: boolean;
 };
 
 const emptyProfile: ProfileValues = {
   displayName: '', dateOfBirth: '', heightCm: '', weightKg: '', bloodGroup: '',
+  allergies: '', emergencyContact: '',
   medicalHistory: '', dentalHistory: '', currentTreatments: '', hasAbha: 'unsure',
   consentAccepted: false, aiConsent: false, documentOcrConsent: false, marketplaceConsent: false,
 };
@@ -72,6 +74,11 @@ export default function Onboarding() {
         <label className="form-field">Height (cm)<input className="input" name="heightCm" type="number" min="30" max="250" step="0.1" required value={values.heightCm} onChange={e => change('heightCm', e.target.value)}/></label>
         <label className="form-field">Weight (kg)<input className="input" name="weightKg" type="number" min="2" max="350" step="0.1" required value={values.weightKg} onChange={e => change('weightKg', e.target.value)}/></label>
         <label className="form-field">Blood group <span className="optional">if known</span><select className="input" name="bloodGroup" required value={values.bloodGroup} onChange={e => change('bloodGroup', e.target.value)}><option value="">Choose one</option>{['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'].map(group => <option key={group} value={group}>{group === 'Unknown' ? 'I don’t know' : group}</option>)}</select></label>
+      </div></section>
+
+      <section className="form-section"><h2>Emergency & Medical Alerts <span className="optional">critical for ER and visits</span></h2><div className="form-grid">
+        <label className="form-field form-wide">Known drug allergies & reactions<input className="input" name="allergies" maxLength={1500} placeholder="e.g., Penicillin (hives), Sulfa antibiotics, NSAIDs, or 'None known'" value={values.allergies} onChange={e => change('allergies', e.target.value)}/></label>
+        <label className="form-field form-wide">Emergency contact (Name & Phone)<input className="input" name="emergencyContact" maxLength={200} placeholder="e.g., Priya Sharma (Sister) - +91 98765 43210" value={values.emergencyContact} onChange={e => change('emergencyContact', e.target.value)}/></label>
       </div></section>
 
       <section className="form-section"><h2>Your health background <span className="optional">all optional</span></h2><div className="form-grid">

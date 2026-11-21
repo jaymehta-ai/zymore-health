@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
     const clinicalRecords = records.filter(record => record.source !== 'user' || record.summary.trim().length > 0);
     const clinicalInput = {
       selfReported: {
+        allergies: profile.allergies || '',
         medicalHistory: profile.medicalHistory || '',
         dentalHistory: profile.dentalHistory || '',
         currentTreatments: profile.currentTreatments || '',
@@ -136,6 +137,8 @@ export async function GET(request: NextRequest) {
     }
 
     const profileRecords = [
+      ['Known allergies', profile.allergies],
+      ['Emergency contact', profile.emergencyContact],
       ['Past health issues', profile.medicalHistory],
       ['Dental history', profile.dentalHistory],
       ['Current treatment', profile.currentTreatments],
@@ -150,6 +153,8 @@ export async function GET(request: NextRequest) {
         heightCm: profile.heightCm,
         weightKg: profile.weightKg,
         bloodGroup: profile.bloodGroup,
+        allergies: profile.allergies || '',
+        emergencyContact: profile.emergencyContact || '',
         hasAbha: profile.hasAbha,
         aiConsent: profile.aiConsent === true,
         documentOcrConsent: profile.documentOcrConsent === true,

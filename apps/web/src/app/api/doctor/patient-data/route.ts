@@ -35,8 +35,30 @@ export async function GET(request: NextRequest) {
     if (!profile) return NextResponse.json({ error: 'Patient profile is unavailable.' }, { status: 404 });
     const scopes = new Set<string>(grant.scopes || []);
     const patient: Record<string, unknown> = {};
-    if (scopes.has('profile')) patient.profile = { displayName: profile.displayName, age: ageFrom(profile.dateOfBirth), heightCm: profile.heightCm, weightKg: profile.weightKg, bloodGroup: profile.bloodGroup };
-    if (scopes.has('history')) patient.history = { medicalHistory: profile.medicalHistory || '', dentalHistory: profile.dentalHistory || '', currentTreatments: profile.currentTreatments || '' };
+    if (scopes.has('profile')) {
+      patient.profile = {
+        displayName: profile.displayName,
+        age: ageFrom(profile.dateOfBirth),
+        heightCm: profile.heightCm,
+        weightKg: profile.weightKg,
+        bloodGroup: profile.bloodGroup,
+        allergies: profile.allergies || 'None reported',
+        emergencyContact: profile.emergencyContact || 'Not provided',
+      };
+    }
+    if (scopes.has('history')) {
+      patient.history = {
+        allergies: profile.allergies || 'None reported',
+        medicalHistory: profile.medicalHistory || '',
+        dentalHistory: profile.dentalHistory || '',
+        currentTreatments: profile.currentTreatments || '',
+        emergencyContact: profile.emergencyContact || 'Not provided',
+      };
+    }
+    if (scopes.has('profile') || scopes.has('history')) {
+      patient.allergies = profile.allergies || '';
+      patient.emergencyContact = profile.emergencyContact || '';
+    }
     if (scopes.has('records')) {
       const records = await db.collection('health_records').where('user_id', '==', grant.patient_uid).get();
       const storedRecords: Array<Record<string, unknown> & { id: string }> = records.docs.map(doc => ({ id: doc.id, ...doc.data() }));
