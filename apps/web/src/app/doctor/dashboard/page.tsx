@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, Clock3, Download, LockKeyhole, LogOut, ShieldCheck, UserRound } from 'lucide-react';
+import { Activity, AlertTriangle, Clock3, Download, LockKeyhole, LogOut, ShieldCheck, UserRound } from 'lucide-react';
 import { onAuthStateChanged, signOut, type User } from '@firebase/auth';
 import { getFirebaseAuth } from '@/lib/firebase';
 
 type Grant = { id: string; doctorName: string; scopes: string[]; expiresAt: string; createdAt: string };
 type SharedRecord = { id: string; title?: string; summary?: string; record_date?: string; file_name?: string | null; simulated?: boolean };
-type PatientData = { profile?: Record<string, unknown>; history?: Record<string, string>; records?: SharedRecord[]; grantId: string; scopes: string[] };
+type PatientData = { profile?: Record<string, unknown>; history?: Record<string, string>; records?: SharedRecord[]; allergies?: string; emergencyContact?: string; grantId: string; scopes: string[] };
 
 export default function DoctorDashboard() {
   const router = useRouter();
@@ -42,7 +42,9 @@ export default function DoctorDashboard() {
       const response = await fetch(`/api/doctor/patient-data?grantId=${encodeURIComponent(grantId)}`, { headers: { Authorization: `Bearer ${await user.getIdToken()}` }, cache: 'no-store' });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Access denied.');
-      setSelected({ ...result.patient, grantId: result.grant.id, scopes: result.grant.scopes });
+      const patientAllergies = String(result.patient.allergies || result.patient.profile?.allergies || result.patient.history?.allergies || '');
+      const emergencyContact = String(result.patient.emergencyContact || result.patient.profile?.emergencyContact || result.patient.history?.emergencyContact || '');
+      setSelected({ ...result.patient, allergies: patientAllergies, emergencyContact, grantId: result.grant.id, scopes: result.grant.scopes });
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not open shared information.'); }
   }
 
@@ -86,6 +88,20 @@ export default function DoctorDashboard() {
         <section><div className="section-head"><h2>Patients who shared access</h2><span>{grants.length} active</span></div>{grants.length ? <div className="doctor-grant-list">{grants.map(grant => <article className="card doctor-grant" key={grant.id}><div className="record-icon"><UserRound size={18}/></div><div className="doctor-grant-info"><h3>Patient shared record</h3><p>Permissions: {grant.scopes.map(scope => scope === 'add_records' ? 'add clinic records' : scope).join(', ')}</p><span><Clock3 size={12}/> Expires {new Date(grant.expiresAt).toLocaleString('en-IN')}</span></div><button className="book" onClick={() => void openPatient(grant.id)}>Open</button></article>)}</div> : <div className="card empty">No active patient permissions.</div>}</section>
         <section className="card shared-patient">{selected ? <>
           <h2>Shared patient information</h2><p className="privacy-inline">Access is time limited and patient controlled. This view was logged.</p>
+          {selected.allergies && !['none', 'none reported', 'none known', ''].includes(selected.allergies.trim().toLowerCase()) && (
+            <div className="emergency-alert-banner">
+              <AlertTriangle size={20} className="alert-icon"/>
+              <div>
+                <strong>CRITICAL DRUG ALLERGY ALERT</strong>
+                <p>{selected.allergies}</p>
+              </div>
+            </div>
+          )}
+          {selected.emergencyContact && !['not provided', 'none', ''].includes(selected.emergencyContact.trim().toLowerCase()) && (
+            <div className="emergency-contact-chip">
+              <span className="chip-label">Emergency Contact:</span> <strong>{selected.emergencyContact}</strong>
+            </div>
+          )}
           {selected.profile && <div className="shared-block"><h3>Profile</h3>{Object.entries(selected.profile).map(([key, value]) => <p key={key}><strong>{key}</strong>: {String(value || 'Not provided')}</p>)}</div>}
           {selected.history && <div className="shared-block"><h3>Health history provided by patient</h3>{Object.entries(selected.history).map(([key, value]) => <p key={key}><strong>{key}</strong>: {value || 'Not provided'}</p>)}</div>}
           {selected.records && <div className="shared-block"><h3>Shared records</h3>{selected.records.length ? selected.records.map(record => <article className="doctor-record" key={record.id}><p><strong>{record.title || 'Health record'}</strong>{record.simulated && <span className="demo-label">DEMO DATA</span>}<br/>{record.summary}</p>{record.file_name && <button className="text-button" onClick={() => void downloadRecord(record)}><Download size={13}/> Download attached file</button>}</article>) : <p>No records in this scope.</p>}</div>}

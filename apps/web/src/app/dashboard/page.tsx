@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Activity, ArrowUpRight, CalendarDays, ClipboardList, Download, FileText, HeartPulse, LockKeyhole, ShieldCheck, ShoppingBag, Sparkles, Stethoscope, TestTube2, Trash2, Upload, UserRound } from 'lucide-react';
+import { Activity, AlertTriangle, ArrowUpRight, CalendarDays, ClipboardList, Download, FileText, HeartPulse, LockKeyhole, Phone, ShieldCheck, ShoppingBag, Sparkles, Stethoscope, TestTube2, Trash2, Upload, UserRound, X } from 'lucide-react';
 import { onAuthStateChanged, signOut, type User } from '@firebase/auth';
 import { getFirebaseAuth } from '@/lib/firebase';
 
@@ -11,7 +11,7 @@ type OcrExtraction = { status: string; document_type?: string; document_date?: s
 type RecordItem = { id: string; resourceType: string; title: string; date: string; summary: string; source: string; simulated: boolean; fileName?: string | null; ocrExtraction?: OcrExtraction | null };
 type Action = { title: string; vendor: string; price_estimate: string };
 type DashboardData = {
-  profile: { displayName: string; age: number; heightCm: number; weightKg: number; bloodGroup: string; hasAbha: string; aiConsent: boolean; documentOcrConsent: boolean };
+  profile: { displayName: string; age: number; heightCm: number; weightKg: number; bloodGroup: string; allergies?: string; emergencyContact?: string; hasAbha: string; aiConsent: boolean; documentOcrConsent: boolean };
   summary: string | null; clinical_tags: string[]; marketplace_actions: Action[]; summaryStale: boolean;
   records: RecordItem[]; hasClinicalContext: boolean; aiConfigured: boolean; aiFailed: boolean; aiPending: boolean; isDemo: boolean;
 };
@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [recordBusy, setRecordBusy] = useState(false);
   const [demoBusy, setDemoBusy] = useState(false);
   const [ocrBusyId, setOcrBusyId] = useState('');
+  const [showEmergencyCard, setShowEmergencyCard] = useState(false);
 
   const load = useCallback(async (currentUser: User) => {
     try {
@@ -135,7 +136,76 @@ export default function Dashboard() {
     </header>
     <main className="main">
       <div className="welcome"><div><div className="eyebrow">Your personal health record</div><h1>Hello, {data.profile.displayName}.</h1><p>Your health details and records, in one place.</p></div><div className="date-pill"><CalendarDays size={13} style={{ verticalAlign: 'middle', marginRight: 6 }}/>Your private health space</div></div>
-      <section className="profile-strip card"><div className="profile-fact"><span className="profile-fact-label">Age</span><strong>{data.profile.age}</strong><span>years</span></div><div className="profile-fact"><span className="profile-fact-label">Height</span><strong>{data.profile.heightCm}</strong><span>cm</span></div><div className="profile-fact"><span className="profile-fact-label">Weight</span><strong>{data.profile.weightKg}</strong><span>kg</span></div><div className="profile-fact"><span className="profile-fact-label">Blood group</span><strong>{data.profile.bloodGroup === 'Unknown' ? 'Not known' : data.profile.bloodGroup || 'Not added'}</strong></div><div className="abha-fact"><strong>{abhaLabel}</strong><span>ABHA is not connected in this demo.</span></div><Link href="/onboarding?edit=1" className="edit-profile-link">Edit details</Link></section>
+      <section className="profile-strip card">
+        <div className="profile-fact"><span className="profile-fact-label">Age</span><strong>{data.profile.age}</strong><span>years</span></div>
+        <div className="profile-fact"><span className="profile-fact-label">Height</span><strong>{data.profile.heightCm}</strong><span>cm</span></div>
+        <div className="profile-fact"><span className="profile-fact-label">Weight</span><strong>{data.profile.weightKg}</strong><span>kg</span></div>
+        <div className="profile-fact"><span className="profile-fact-label">Blood group</span><strong>{data.profile.bloodGroup === 'Unknown' ? 'Not known' : data.profile.bloodGroup || 'Not added'}</strong></div>
+        <div className={`profile-fact ${data.profile.allergies && !['none', 'none known', ''].includes(data.profile.allergies.trim().toLowerCase()) ? 'allergy-fact-alert' : ''}`}>
+          <span className="profile-fact-label">Drug Allergies</span>
+          <strong title={data.profile.allergies || 'None reported'}>{data.profile.allergies && !['none', 'none known', ''].includes(data.profile.allergies.trim().toLowerCase()) ? data.profile.allergies : 'None reported'}</strong>
+        </div>
+        <button type="button" className="ice-button" onClick={() => setShowEmergencyCard(true)} title="View Emergency Medical Card">
+          <AlertTriangle size={13}/> Emergency ICE Card
+        </button>
+        <Link href="/onboarding?edit=1" className="edit-profile-link">Edit details</Link>
+      </section>
+
+      {showEmergencyCard && (
+        <div className="ice-modal-backdrop" onClick={() => setShowEmergencyCard(false)}>
+          <div className="ice-modal-content" onClick={e => e.stopPropagation()}>
+            <div className="ice-modal-header">
+              <div className="ice-title">
+                <span className="ice-badge"><AlertTriangle size={18}/></span>
+                <div>
+                  <h3>Emergency Medical Card (ICE)</h3>
+                  <span>For emergency responders & attending physicians</span>
+                </div>
+              </div>
+              <button className="ice-close-button" onClick={() => setShowEmergencyCard(false)}><X size={16}/></button>
+            </div>
+            <div className="ice-body">
+              <div className="ice-patient-header">
+                <div>
+                  <strong>{data.profile.displayName}</strong>
+                  <span>Age {data.profile.age} · Blood Group: <em className="blood-em">{data.profile.bloodGroup}</em></span>
+                </div>
+              </div>
+              <div className="ice-alert-section">
+                <h4>Known Drug Allergies & Contraindications</h4>
+                <div className="ice-allergy-box">
+                  {data.profile.allergies && !['none', 'none known', ''].includes(data.profile.allergies.trim().toLowerCase())
+                    ? <strong>{data.profile.allergies}</strong>
+                    : <span>No known drug allergies reported by patient.</span>}
+                </div>
+              </div>
+              {data.profile.emergencyContact && !['not provided', 'none', ''].includes(data.profile.emergencyContact.trim().toLowerCase()) && (
+                <div className="ice-contact-section">
+                  <h4>Emergency Contact</h4>
+                  <div className="ice-contact-box">
+                    <Phone size={14}/> <span>{data.profile.emergencyContact}</span>
+                  </div>
+                </div>
+              )}
+              <div className="ice-meds-section">
+                <h4>Active Records & Medication Highlights</h4>
+                {data.records.filter(r => r.resourceType === 'MedicationRequest' || r.resourceType === 'Prescription' || r.title.toLowerCase().includes('treatment')).length > 0 ? (
+                  <ul className="ice-meds-list">
+                    {data.records.filter(r => r.resourceType === 'MedicationRequest' || r.resourceType === 'Prescription' || r.title.toLowerCase().includes('treatment')).slice(0, 4).map(r => (
+                      <li key={r.id}><strong>{r.title}</strong>: {r.summary}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="ice-quiet">No active prescription records stored.</p>
+                )}
+              </div>
+            </div>
+            <div className="ice-footer">
+              <small>Zymore Patient Vault · Emergency point-of-care summary</small>
+            </div>
+          </div>
+        </div>
+      )}
 
       <section className="card summary"><div className="card-heading"><div className="card-title"><span className="icon-badge"><Sparkles size={18}/></span><div><div className="eyebrow">Optional AI explanation</div><h2>Gemini Health Summary</h2></div></div>{data.summary && <span className="ai-label">{data.summaryStale ? 'PREVIOUS SUMMARY' : 'SAVED SUMMARY'}</span>}</div>
         {data.summary ? <><p className="summary-text">{data.summary}</p>{data.summaryStale && <p className="privacy-inline">New health information is saved. {data.aiFailed ? 'Gemini could not refresh this summary, so it may not include the latest records.' : data.aiPending ? 'Another request is preparing the updated summary.' : 'This saved summary may not include the latest records yet.'}</p>}{data.isDemo && <p className="demo-warning">This summary may include synthetic ABDM demo records. They are not real patient results.</p>}{data.clinical_tags.length > 0 && <div className="tags">{data.clinical_tags.map(tag => <span className="tag" key={tag}>{tag}</span>)}</div>}</> : <p className="summary-empty">{!data.profile.aiConsent ? <>Gemini is off. You can opt in from <Link href="/onboarding?edit=1">your profile settings</Link>.</> : !data.hasClinicalContext ? 'Add a health issue, dental concern, current treatment, or health record to see an explanation here.' : !data.aiConfigured ? 'Gemini is not configured yet. Your health details have not been sent to an AI service.' : data.aiPending ? 'Gemini is preparing a summary from your updated health information.' : data.aiFailed ? 'Gemini could not prepare a summary right now. Your saved profile and records are still available.' : 'No summary is available yet.'}</p>}
